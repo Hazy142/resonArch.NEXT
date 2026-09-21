@@ -25,8 +25,13 @@ export async function GET(request: NextRequest) {
   }
 
   const eligibleBallots = await db
-    .select({ id: ballots.id })
+    .select({
+      id: ballots.id,
+      betaInterest: voteFeedback.betaInterest,
+      paymentInterest: voteFeedback.paymentInterest
+    })
     .from(ballots)
+    .leftJoin(voteFeedback, eq(voteFeedback.ballotId, ballots.id))
     .where(eq(ballots.integrityState, "NORMAL"));
 
   const rows = await db
@@ -64,6 +69,8 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     eligibleVoters: eligibleBallots.length,
+    betaInterestedVoters: eligibleBallots.filter((ballot) => ballot.betaInterest).length,
+    paymentInterestedVoters: eligibleBallots.filter((ballot) => ballot.paymentInterest).length,
     products: Array.from(byService.values())
   });
 }
