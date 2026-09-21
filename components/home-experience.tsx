@@ -9,7 +9,84 @@ import type { Audience, CommunitySignal, Product } from "@/lib/types";
 // ── i18n ────────────────────────────────────────────────────────────────────
 type Lang = "en" | "de";
 
-const T = {
+// Shared interface so CommunityResults (and any future sub-components) can
+// accept either language variant without TS complaining about incompatible
+// string-literal return types in the function fields.
+interface Translations {
+  navExplore: string;
+  navSignal: string;
+  navRoadmap: string;
+  navGithub: string;
+  navAdmin: string;
+  eyebrowHero: string;
+  heroH1a: string;
+  heroH1b: string;
+  heroLede: string;
+  badge1: string;
+  badge2: string;
+  badge3: string;
+  badge4: string;
+  founderLabel: string;
+  founderLocation: string;
+  audienceKicker: string;
+  audiences: Array<{ id: Audience; label: string; detail: string; tag: string }>;
+  audienceConfirm: string;
+  whatIsKicker: string;
+  whatIsH2: string;
+  labKicker: string;
+  labH2: string;
+  labSub: string;
+  counterUnlocked: string;
+  counterLocked: string;
+  explore: string;
+  pick: string;
+  picked: string;
+  provenBy: string;
+  productState: string;
+  communityVotes: string;
+  maturityKicker: string;
+  maturityH2: string;
+  maturityItems: string[][];
+  roadmapStates: string[];
+  signalKicker: string;
+  signalH2unlocked: string;
+  signalH2locked: string;
+  signalSubUnlocked: string;
+  signalSubLocked: string;
+  lockTitle: string;
+  lockBody: string;
+  lockBodyLoss: (n: number) => string;
+  lockCTA: (n: number) => string;
+  scarcityNote: string;
+  roadmapKicker: string;
+  roadmapH2: string;
+  roadmapSteps: string[][];
+  ossKicker: string;
+  ossH2: string;
+  ossSub: string;
+  ossBtn: string;
+  footerTagline: string;
+  modalKicker: string;
+  modalH2: (n: number) => string;
+  interestLabel: string;
+  interestOptions: string[][];
+  useCaseLabel: string;
+  useCasePlaceholder: string;
+  betaLabel: string;
+  payLabel: string;
+  privacyNote: string;
+  submitBtn: (s: boolean) => string;
+  dockLabel: string;
+  dockEmpty: string;
+  dockReview: string;
+  eligibleVoters: string;
+  betaVoters: string;
+  payVoters: string;
+  topPick: string;
+  heroSocialProof: (n: number) => string;
+}
+
+const T: Record<Lang, Translations> = {
   en: {
     navExplore: "Explore",
     navSignal: "Community Signal",
@@ -60,8 +137,8 @@ const T = {
     signalSubLocked: "Community rankings remain hidden until you cast a valid Top-3 ballot, reducing herd effects.",
     lockTitle: "COMMUNITY SIGNAL LOCKED",
     lockBody: "Select up to three experiments and cast your ballot to unlock the aggregate.",
-    lockBodyLoss: (n: number) => n > 0 ? `You're already missing insight from ${n} voters who went before you.` : "You're missing live insight from every voter before you.",
-    lockCTA: (n: number) => n > 0 ? `Review my Top ${n} →` : `Review picks →`,
+    lockBodyLoss: (n: number): string => n > 0 ? `You're already missing insight from ${n} voters who went before you.` : "You're missing live insight from every voter before you.",
+    lockCTA: (n: number): string => n > 0 ? `Review my Top ${n} →` : `Review picks →`,
     scarcityNote: "Signal closes when we move to Build phase — could be this month.",
     roadmapKicker: "05 / FROM IDEAS TO REAL TOOLS",
     roadmapH2: "You are helping decide what resonArch ships next.",
@@ -77,7 +154,7 @@ const T = {
     ossBtn: "View source ↗",
     footerTagline: "Real tools. Agent-operated. Human-controlled.",
     modalKicker: "CAST YOUR SIGNAL",
-    modalH2: (n: number) => `Your Top ${n}`,
+    modalH2: (n: number): string => `Your Top ${n}`,
     interestLabel: "What makes this interesting?",
     interestOptions: [
       ["use-myself", "I'd use it myself"],
@@ -90,7 +167,7 @@ const T = {
     betaLabel: "I'd like to test an early version.",
     payLabel: "I'd consider paying for this if it works.",
     privacyNote: "No account or email is required. Your ballot is stored under an anonymous visitor identifier.",
-    submitBtn: (s: boolean) => s ? "Submitting…" : "Cast vote & unlock Community Signal →",
+    submitBtn: (s: boolean): string => s ? "Submitting…" : "Cast vote & unlock Community Signal →",
     dockLabel: "YOUR SIGNAL",
     dockEmpty: "Pick up to three experiments",
     dockReview: "Review →",
@@ -98,7 +175,7 @@ const T = {
     betaVoters: "beta-interested voters",
     payVoters: "payment-intent voters",
     topPick: "",
-    heroSocialProof: (n: number) => n > 3 ? `Join ${n} others who already cast their signal.` : "",
+    heroSocialProof: (n: number): string => n > 3 ? `Join ${n} others who already cast their signal.` : "",
   },
   de: {
     navExplore: "Erkunden",
@@ -150,8 +227,8 @@ const T = {
     signalSubLocked: "Community-Rankings bleiben verborgen, bis du einen gültigen Top-3-Stimmzettel abgibst — um Herdeneffekte zu reduzieren.",
     lockTitle: "COMMUNITY-SIGNAL GESPERRT",
     lockBody: "Wähle bis zu drei Experimente und gib deinen Stimmzettel ab, um das Aggregat freizuschalten.",
-    lockBodyLoss: (n: number) => n > 0 ? `Du verpasst bereits Einblicke von ${n} Teilnehmern, die vor dir abgestimmt haben.` : "Du verpasst live Einblicke von allen bisherigen Abstimmenden.",
-    lockCTA: (n: number) => n > 0 ? `Mein Top ${n} überprüfen →` : `Auswahl überprüfen →`,
+    lockBodyLoss: (n: number): string => n > 0 ? `Du verpasst bereits Einblicke von ${n} Teilnehmern, die vor dir abgestimmt haben.` : "Du verpasst live Einblicke von allen bisherigen Abstimmenden.",
+    lockCTA: (n: number): string => n > 0 ? `Mein Top ${n} überprüfen →` : `Auswahl überprüfen →`,
     scarcityNote: "Signal schließt, wenn wir in die Build-Phase gehen — könnte diesen Monat passieren.",
     roadmapKicker: "05 / VON IDEEN ZU ECHTEN TOOLS",
     roadmapH2: "Du hilfst zu entscheiden, was resonArch als nächstes baut.",
@@ -167,7 +244,7 @@ const T = {
     ossBtn: "Quellcode ansehen ↗",
     footerTagline: "Echte Tools. Agent-betrieben. Menschlich kontrolliert.",
     modalKicker: "DEIN SIGNAL ABGEBEN",
-    modalH2: (n: number) => `Dein Top ${n}`,
+    modalH2: (n: number): string => `Dein Top ${n}`,
     interestLabel: "Was macht das interessant für dich?",
     interestOptions: [
       ["use-myself", "Ich würde es selbst nutzen"],
@@ -180,7 +257,7 @@ const T = {
     betaLabel: "Ich würde gerne eine frühe Version testen.",
     payLabel: "Ich würde dafür bezahlen, wenn es funktioniert.",
     privacyNote: "Kein Account oder E-Mail erforderlich. Dein Stimmzettel wird unter einer anonymen Besucher-ID gespeichert.",
-    submitBtn: (s: boolean) => s ? "Wird eingereicht…" : "Stimme abgeben & Community-Signal freischalten →",
+    submitBtn: (s: boolean): string => s ? "Wird eingereicht…" : "Stimme abgeben & Community-Signal freischalten →",
     dockLabel: "DEIN SIGNAL",
     dockEmpty: "Wähle bis zu drei Experimente",
     dockReview: "Überprüfen →",
@@ -188,7 +265,7 @@ const T = {
     betaVoters: "Beta-interessierte Abstimmende",
     payVoters: "zahlungsbereite Abstimmende",
     topPick: "",
-    heroSocialProof: (n: number) => n > 3 ? `Schließ dich ${n} anderen an, die bereits abgestimmt haben.` : "",
+    heroSocialProof: (n: number): string => n > 3 ? `Schließ dich ${n} anderen an, die bereits abgestimmt haben.` : "",
   },
 };
 
@@ -208,7 +285,7 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
   const [submitting, setSubmitting] = useState(false);
   const [lang, setLang] = useState<Lang>("de");
 
-  const t = T[lang];
+  const t: Translations = T[lang];
 
   useEffect(() => {
     const storedAudience = window.localStorage.getItem("next:audience") as Audience | null;
@@ -304,7 +381,6 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
 
   return (
     <main>
-      {/* Skip link for keyboard/screen reader users */}
       <a className="skip-link" href="#lab">{lang === "de" ? "Zum Inhalt springen" : "Skip to content"}</a>
 
       <nav className="topbar page-width">
@@ -315,7 +391,6 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
           <a href="#roadmap">{t.navRoadmap}</a>
           <a href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer" className="nav-github">{t.navGithub}</a>
           <Link href="/admin">{t.navAdmin}</Link>
-          {/* Language toggle */}
           <button
             className="lang-toggle"
             onClick={() => setLang(lang === "de" ? "en" : "de")}
@@ -338,7 +413,6 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
               <span>{t.badge3}</span>
               <span>{t.badge4}</span>
             </div>
-            {/* Social proof counter */}
             {socialProofText ? (
               <div className="social-proof-strip">
                 <span className="social-proof-dot" aria-hidden="true">●</span>
@@ -363,7 +437,6 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
           </div>
         </div>
 
-        {/* Audience selector with commitment & decoy */}
         <div className="audience-block">
           <div className="section-kicker"><span>01</span>{t.audienceKicker}</div>
           {audienceJustSet ? (
@@ -505,9 +578,7 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
               <div>
                 <strong>{t.lockTitle}</strong>
                 <p>{t.lockBody}</p>
-                {/* Loss aversion: show how many voters went before */}
                 <p className="loss-aversion-note">{t.lockBodyLoss(totalVoters)}</p>
-                {/* Scarcity signal */}
                 <p className="scarcity-note">⚠ {t.scarcityNote}</p>
               </div>
               <button
@@ -557,7 +628,6 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
         <span>Apache-2.0</span>
       </footer>
 
-      {/* Selection dock */}
       {!community ? (
         <div className="selection-dock">
           <div>
@@ -573,7 +643,6 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
         </div>
       ) : null}
 
-      {/* Vote modal */}
       {reviewOpen ? (
         <div className="modal-backdrop" onMouseDown={() => setReviewOpen(false)}>
           <div className="vote-modal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t.modalKicker}>
@@ -628,7 +697,7 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
   );
 }
 
-function CommunityResults({ community, catalog, t }: { community: CommunitySignal; catalog: Product[]; t: typeof T["en"] }) {
+function CommunityResults({ community, catalog, t }: { community: CommunitySignal; catalog: Product[]; t: Translations }) {
   const rows = [...community.products].sort((a, b) => b.votes - a.votes);
   const maxVotes = Math.max(1, ...rows.map((r) => r.votes));
   return (
