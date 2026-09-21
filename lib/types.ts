@@ -56,5 +56,7 @@ export type CommunityProductSignal = {
 
 export type CommunitySignal = {
   eligibleVoters: number;
+  betaInterestedVoters: number;
+  paymentInterestedVoters: number;
   products: CommunityProductSignal[];
 };
