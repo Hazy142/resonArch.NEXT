@@ -448,8 +448,8 @@ function CommunityResults({ community, catalog }: { community: CommunitySignal; 
     <div className="community-results">
       <div className="results-summary">
         <div><strong>{community.eligibleVoters}</strong><span>eligible voters</span></div>
-        <div><strong>{rows.reduce((sum, item) => sum + item.betaInterest, 0)}</strong><span>beta-interest signals</span></div>
-        <div><strong>{rows.reduce((sum, item) => sum + item.paymentInterest, 0)}</strong><span>payment-intent signals</span></div>
+        <div><strong>{community.betaInterestedVoters}</strong><span>beta-interested voters</span></div>
+        <div><strong>{community.paymentInterestedVoters}</strong><span>payment-intent voters</span></div>
       </div>
 
       <div className="ranking-list">
