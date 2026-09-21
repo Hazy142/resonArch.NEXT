@@ -293,3 +293,26 @@ button { color: inherit; }
   .selection-dock small { max-width: 180px; }
   .detail-footer-cta { grid-template-columns: 1fr; }
 }
+
+
+.opt-in-panel{margin-top:18px;border:1px solid var(--line);border-radius:16px;padding:24px;background:rgba(6,18,23,.74);display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.opt-in-panel h3{margin:8px 0;font-size:24px;letter-spacing:-.03em}.opt-in-panel p{color:var(--muted);font-size:12px;line-height:1.6}.opt-in-fields{display:grid;gap:10px}
+.opt-in-fields>input{width:100%;border:1px solid var(--line);background:#061014;color:var(--text);border-radius:10px;padding:12px;outline:none}.opt-in-fields>input:focus{border-color:var(--line-strong)}
+.opt-in-fields label{display:flex;gap:8px;align-items:flex-start;color:#829ea5;font-size:10px;line-height:1.5}.opt-in-fields small{color:#739097;line-height:1.5}
+
+.admin-shell{width:min(1360px,calc(100% - 40px));margin:0 auto;padding:64px 0 100px}.admin-login-shell{min-height:calc(100vh - 76px);display:grid;place-items:center}
+.admin-login{width:min(460px,100%);border:1px solid var(--line);border-radius:18px;padding:30px;background:rgba(7,18,23,.86);box-shadow:var(--shadow)}
+.admin-login h1{margin:12px 0;font-size:38px;letter-spacing:-.045em}.admin-login p{color:var(--muted);line-height:1.6}.admin-login input{width:100%;margin:12px 0;border:1px solid var(--line);border-radius:10px;padding:12px;background:#061014;color:var(--text)}.admin-login .primary-button{width:100%;margin-top:10px}
+.admin-header{display:flex;align-items:end;justify-content:space-between;gap:30px;margin-bottom:30px}.admin-header h1{margin:8px 0 0;max-width:760px;font-size:clamp(34px,5vw,64px);letter-spacing:-.05em;line-height:1}
+.admin-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.ghost-admin-button{border:1px solid var(--line);background:transparent;color:#91aeb5;border-radius:9px;padding:9px 11px;font-size:10px;cursor:pointer}.ghost-admin-button:hover{border-color:var(--line-strong);color:var(--cyan)}
+.admin-metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:24px}.admin-metric{border:1px solid var(--line);background:rgba(7,18,23,.66);border-radius:12px;padding:17px;display:flex;flex-direction:column;gap:4px}
+.admin-metric strong{color:var(--cyan);font-size:27px;letter-spacing:-.035em}.admin-metric span{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}.admin-error{margin-bottom:14px}
+.admin-table-wrap{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(5,14,18,.7)}.admin-table-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;padding:24px;border-bottom:1px solid var(--line)}
+.admin-table-heading h2{margin:7px 0 0;font-size:30px;letter-spacing:-.04em}.admin-table-heading p{max-width:520px;color:var(--muted);font-size:11px;line-height:1.55}.admin-table{overflow-x:auto}
+.admin-row{min-width:1050px;display:grid;grid-template-columns:minmax(210px,1.5fr) repeat(6,minmax(72px,.52fr)) minmax(235px,1.45fr);gap:10px;align-items:center;padding:13px 18px;border-bottom:1px solid var(--line);font-size:11px}
+.admin-row:last-child{border-bottom:0}.admin-row-head{color:#607e85;text-transform:uppercase;letter-spacing:.09em;font-size:8px;background:rgba(255,255,255,.012)}
+.admin-product{display:flex;flex-direction:column;gap:3px}.admin-product strong{font-size:12px}.admin-product small{color:#647f86;font-size:9px}.admin-row .score{color:var(--cyan);font-size:13px}
+.status-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}.status-controls select{min-width:0;border:1px solid var(--line);border-radius:7px;padding:7px;background:#061014;color:#9cb6bc;font-size:9px}
+.admin-note{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--cyan-dim)}.admin-note strong{color:var(--cyan)}.admin-note p{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:900px){.admin-metrics{grid-template-columns:repeat(3,1fr)}.admin-header,.admin-table-heading{align-items:flex-start;flex-direction:column}.opt-in-panel{grid-template-columns:1fr}}
+@media(max-width:640px){.admin-shell{width:min(100% - 24px,1360px);padding-top:38px}.admin-metrics{grid-template-columns:repeat(2,1fr)}}
