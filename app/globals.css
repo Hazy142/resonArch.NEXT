@@ -316,3 +316,11 @@ button { color: inherit; }
 .admin-note{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--cyan-dim)}.admin-note strong{color:var(--cyan)}.admin-note p{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
 @media(max-width:900px){.admin-metrics{grid-template-columns:repeat(3,1fr)}.admin-header,.admin-table-heading{align-items:flex-start;flex-direction:column}.opt-in-panel{grid-template-columns:1fr}}
 @media(max-width:640px){.admin-shell{width:min(100% - 24px,1360px);padding-top:38px}.admin-metrics{grid-template-columns:repeat(2,1fr)}}
+
+
+.integrity-section{margin-top:16px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:rgba(5,14,18,.7)}
+.integrity-list{display:grid}.integrity-row{display:grid;grid-template-columns:1fr auto auto;gap:16px;align-items:center;padding:14px 18px;border-top:1px solid var(--line)}
+.integrity-row>div:first-child{display:flex;flex-direction:column;gap:3px}.integrity-row strong{color:#c9dfe4;font-size:11px}.integrity-row small{color:#607e85;font-size:9px}.integrity-row code{color:#78969e;font-size:10px}
+.integrity-actions{display:flex;gap:7px}.integrity-actions button{border:1px solid var(--line);background:transparent;color:#8ba8af;border-radius:8px;padding:7px 9px;font-size:9px;cursor:pointer}.integrity-actions button:hover{border-color:var(--line-strong);color:var(--cyan)}
+.integrity-empty{margin:0;padding:18px;color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
+@media(max-width:700px){.integrity-row{grid-template-columns:1fr}.integrity-actions{justify-content:flex-start}}
