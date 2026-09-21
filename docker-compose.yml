@@ -27,8 +27,8 @@ services:
       ABUSE_SECRET: ${ABUSE_SECRET:?set ABUSE_SECRET}
       ABUSE_BALLOT_LIMIT_PER_HOUR: ${ABUSE_BALLOT_LIMIT_PER_HOUR:-10}
       NEXT_TELEMETRY_DISABLED: "1"
-    expose:
-      - "3000"
+    ports:
+      - "${NEXT_APP_PORT:-3000}:3000"
 
   nginx:
     image: nginx:1.27-alpine

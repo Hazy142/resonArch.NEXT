@@ -10,7 +10,7 @@ resonArch NEXT makes the difference between **proven implementation**, **prototy
 
 ## Current phase
 
-**v1 implementation complete on the implementation branch and gated by CI.**
+**v1 is implemented on `main` and gated by CI.**
 
 Implemented surfaces:
 
@@ -46,23 +46,34 @@ cp .env.example .env
 docker compose up --build
 ~~~
 
-Default local endpoint:
+The Compose stack publishes **both** the Next app directly and the nginx proxy so local debugging is unambiguous:
 
 ~~~text
-http://localhost:8080
+http://localhost:3000        # Next.js directly
+http://localhost:8080        # nginx -> Next.js
 ~~~
 
-Admin:
+Ports can be changed with:
+
+~~~text
+NEXT_APP_PORT=3000
+NEXT_HTTP_PORT=8080
+~~~
+
+Admin through nginx:
 
 ~~~text
 http://localhost:8080/admin
 ~~~
 
-Health:
+Health checks:
 
 ~~~text
+http://localhost:3000/api/health
 http://localhost:8080/api/health
 ~~~
+
+If `localhost:3000` works but `localhost:8080` does not, the application is healthy and the problem is isolated to the proxy/published nginx path.
 
 ### Local Node development
 
