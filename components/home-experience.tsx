@@ -6,23 +6,196 @@ import { useEffect, useMemo, useState } from "react";
 import { families } from "@/lib/catalog";
 import type { Audience, CommunitySignal, Product } from "@/lib/types";
 
-const audienceOptions: Array<{ id: Audience; label: string; detail: string }> = [
-  { id: "software", label: "I build software", detail: "Agents, repos, CI, runtime." },
-  { id: "engineering", label: "I work in engineering", detail: "CAD, mechanics, evidence." },
-  { id: "creator", label: "I create things", detail: "Godot, audio, media tooling." },
-  { id: "exploring", label: "I'm exploring", detail: "Show me the whole lab." }
-];
+// ── i18n ────────────────────────────────────────────────────────────────────
+type Lang = "en" | "de";
 
-const maturityCopy = [
-  ["WORKING CORE", "A bounded technical core already exists."],
-  ["PROTOTYPE", "A working or partial prototype exists."],
-  ["RESEARCH PILOT", "Research implementation; product claims stay bounded."],
-  ["IDEA", "Concept only. No implementation claim."]
-] as const;
+const T = {
+  en: {
+    navExplore: "Explore",
+    navSignal: "Community Signal",
+    navRoadmap: "Roadmap",
+    navGithub: "GitHub ↗",
+    navAdmin: "Admin",
+    eyebrowHero: "PUBLIC PRODUCT LAB / OPEN SOURCE",
+    heroH1a: "AI that works in the",
+    heroH1b: "real world.",
+    heroLede: "We build infrastructure that lets AI work with real software, engineering systems and compute — while humans stay in control. Every action leaves a receipt.",
+    badge1: "Open Source", badge2: "Evidence First", badge3: "Real Systems", badge4: "Built for People",
+    founderLabel: "Built by",
+    founderLocation: "· Büren, Germany",
+    audienceKicker: "Start with your context",
+    audiences: [
+      { id: "software" as Audience, label: "I build software", detail: "Agents, repos, CI, runtime.", tag: "" },
+      { id: "engineering" as Audience, label: "I work in engineering", detail: "CAD, mechanics, evidence.", tag: "Most common" },
+      { id: "creator" as Audience, label: "I create things", detail: "Godot, audio, media tooling.", tag: "" },
+      { id: "exploring" as Audience, label: "I'm exploring", detail: "Show me the whole lab.", tag: "" },
+    ],
+    audienceConfirm: "✓ Good — your feed is personalised.",
+    whatIsKicker: "WHAT IS resonArch?",
+    whatIsH2: "One system. Multiple real-world surfaces.",
+    labKicker: "02 / EXPLORE THE LAB",
+    labH2: "Pick what excites you.",
+    labSub: "Families help you navigate. Concrete experiments are the actual vote targets.",
+    counterUnlocked: "Community signal unlocked",
+    counterLocked: "Vote counts hidden until you vote",
+    explore: "Explore",
+    pick: "↑ PICK",
+    picked: "✓ PICKED",
+    provenBy: "PROVEN BY",
+    productState: "PRODUCT STATE",
+    communityVotes: "community votes",
+    maturityKicker: "03 / HOW FAR IS THIS REALLY?",
+    maturityH2: "Technical maturity ≠ product maturity.",
+    maturityItems: [
+      ["WORKING CORE", "A bounded technical core already exists."],
+      ["PROTOTYPE", "A working or partial prototype exists."],
+      ["RESEARCH PILOT", "Research implementation; product claims stay bounded."],
+      ["IDEA", "Concept only. No implementation claim."],
+    ],
+    roadmapStates: ["SIGNALING", "VALIDATING", "BUILDING", "BETA", "AVAILABLE"],
+    signalKicker: "04 / COMMUNITY SIGNAL",
+    signalH2unlocked: "Here's what the community wants next.",
+    signalH2locked: "Your signal comes first.",
+    signalSubUnlocked: "These counts use eligible ballots only. Declared intent is shown as intent — not customers or revenue.",
+    signalSubLocked: "Community rankings remain hidden until you cast a valid Top-3 ballot, reducing herd effects.",
+    lockTitle: "COMMUNITY SIGNAL LOCKED",
+    lockBody: "Select up to three experiments and cast your ballot to unlock the aggregate.",
+    lockBodyLoss: (n: number) => n > 0 ? `You're already missing insight from ${n} voters who went before you.` : "You're missing live insight from every voter before you.",
+    lockCTA: (n: number) => n > 0 ? `Review my Top ${n} →` : `Review picks →`,
+    scarcityNote: "Signal closes when we move to Build phase — could be this month.",
+    roadmapKicker: "05 / FROM IDEAS TO REAL TOOLS",
+    roadmapH2: "You are helping decide what resonArch ships next.",
+    roadmapSteps: [
+      ["01", "Community votes", "People choose concrete experiments, not vague themes."],
+      ["02", "We validate", "Signal quality, use cases, feasibility and cost are reviewed."],
+      ["03", "We build", "Selected cuts move from signaling into productization."],
+      ["04", "You get early access", "Opted-in testers can join the next validation loop."],
+    ],
+    ossKicker: "06 / OPEN SOURCE",
+    ossH2: "Self-host it. Fork it. Or use the official resonArch instance.",
+    ossSub: "NEXT itself is Apache-2.0 licensed. The resonArch name, logos and official community data are not granted by the source-code license.",
+    ossBtn: "View source ↗",
+    footerTagline: "Real tools. Agent-operated. Human-controlled.",
+    modalKicker: "CAST YOUR SIGNAL",
+    modalH2: (n: number) => `Your Top ${n}`,
+    interestLabel: "What makes this interesting?",
+    interestOptions: [
+      ["use-myself", "I'd use it myself"],
+      ["team", "My team/company could use it"],
+      ["integrate-api", "I'd integrate the API"],
+      ["curious", "I'm mostly curious"],
+    ],
+    useCaseLabel: "What would you use it for?",
+    useCasePlaceholder: "A concrete use case is more valuable than generic praise.",
+    betaLabel: "I'd like to test an early version.",
+    payLabel: "I'd consider paying for this if it works.",
+    privacyNote: "No account or email is required. Your ballot is stored under an anonymous visitor identifier.",
+    submitBtn: (s: boolean) => s ? "Submitting…" : "Cast vote & unlock Community Signal →",
+    dockLabel: "YOUR SIGNAL",
+    dockEmpty: "Pick up to three experiments",
+    dockReview: "Review →",
+    eligibleVoters: "eligible voters",
+    betaVoters: "beta-interested voters",
+    payVoters: "payment-intent voters",
+    topPick: "",
+    heroSocialProof: (n: number) => n > 3 ? `Join ${n} others who already cast their signal.` : "",
+  },
+  de: {
+    navExplore: "Erkunden",
+    navSignal: "Community-Signal",
+    navRoadmap: "Roadmap",
+    navGithub: "GitHub ↗",
+    navAdmin: "Admin",
+    eyebrowHero: "ÖFFENTLICHES PRODUKT-LAB / OPEN SOURCE",
+    heroH1a: "KI, die in der",
+    heroH1b: "echten Welt funktioniert.",
+    heroLede: "Wir bauen Infrastruktur, die KI mit echter Software, Ingenieursystemen und Rechenleistung verbindet — während Menschen die Kontrolle behalten. Jede Aktion hinterlässt einen Nachweis.",
+    badge1: "Open Source", badge2: "Evidenz zuerst", badge3: "Echte Systeme", badge4: "Für Menschen gebaut",
+    founderLabel: "Gebaut von",
+    founderLocation: "· Büren, Deutschland",
+    audienceKicker: "Starte mit deinem Kontext",
+    audiences: [
+      { id: "software" as Audience, label: "Ich entwickle Software", detail: "Agents, Repos, CI, Runtime.", tag: "" },
+      { id: "engineering" as Audience, label: "Ich arbeite im Ingenieurwesen", detail: "CAD, Mechanik, Nachweise.", tag: "Am häufigsten" },
+      { id: "creator" as Audience, label: "Ich erstelle Inhalte", detail: "Godot, Audio, Media-Tools.", tag: "" },
+      { id: "exploring" as Audience, label: "Ich schaue mich um", detail: "Zeig mir das gesamte Lab.", tag: "" },
+    ],
+    audienceConfirm: "✓ Gut — dein Feed ist jetzt personalisiert.",
+    whatIsKicker: "WAS IST resonArch?",
+    whatIsH2: "Ein System. Mehrere reale Oberflächen.",
+    labKicker: "02 / DAS LAB ERKUNDEN",
+    labH2: "Wähl aus, was dich begeistert.",
+    labSub: "Familien helfen dir zu navigieren. Konkrete Experimente sind die eigentlichen Abstimmungsziele.",
+    counterUnlocked: "Community-Signal freigeschaltet",
+    counterLocked: "Abstimmungszahlen bis zur Stimmabgabe versteckt",
+    explore: "Details",
+    pick: "↑ WÄHLEN",
+    picked: "✓ GEWÄHLT",
+    provenBy: "BEWIESEN DURCH",
+    productState: "PRODUKTSTATUS",
+    communityVotes: "Community-Stimmen",
+    maturityKicker: "03 / WIE WEIT IST DAS WIRKLICH?",
+    maturityH2: "Technische Reife ≠ Produktreife.",
+    maturityItems: [
+      ["WORKING CORE", "Ein begrenzter technischer Kern existiert bereits."],
+      ["PROTOTYPE", "Ein funktionsfähiger oder teilweiser Prototyp existiert."],
+      ["RESEARCH PILOT", "Forschungsimplementierung; Produktaussagen bleiben begrenzt."],
+      ["IDEA", "Nur ein Konzept. Keine Implementierungsaussage."],
+    ],
+    roadmapStates: ["SIGNALING", "VALIDIERUNG", "BAUT", "BETA", "VERFÜGBAR"],
+    signalKicker: "04 / COMMUNITY-SIGNAL",
+    signalH2unlocked: "Das will die Community als nächstes.",
+    signalH2locked: "Dein Signal kommt zuerst.",
+    signalSubUnlocked: "Diese Zahlen verwenden nur gültige Stimmzettel. Absicht ist als Absicht dargestellt — nicht als Kunden oder Umsatz.",
+    signalSubLocked: "Community-Rankings bleiben verborgen, bis du einen gültigen Top-3-Stimmzettel abgibst — um Herdeneffekte zu reduzieren.",
+    lockTitle: "COMMUNITY-SIGNAL GESPERRT",
+    lockBody: "Wähle bis zu drei Experimente und gib deinen Stimmzettel ab, um das Aggregat freizuschalten.",
+    lockBodyLoss: (n: number) => n > 0 ? `Du verpasst bereits Einblicke von ${n} Teilnehmern, die vor dir abgestimmt haben.` : "Du verpasst live Einblicke von allen bisherigen Abstimmenden.",
+    lockCTA: (n: number) => n > 0 ? `Mein Top ${n} überprüfen →` : `Auswahl überprüfen →`,
+    scarcityNote: "Signal schließt, wenn wir in die Build-Phase gehen — könnte diesen Monat passieren.",
+    roadmapKicker: "05 / VON IDEEN ZU ECHTEN TOOLS",
+    roadmapH2: "Du hilfst zu entscheiden, was resonArch als nächstes baut.",
+    roadmapSteps: [
+      ["01", "Community stimmt ab", "Menschen wählen konkrete Experimente, keine vagen Themen."],
+      ["02", "Wir validieren", "Signalqualität, Use Cases, Machbarkeit und Kosten werden geprüft."],
+      ["03", "Wir bauen", "Ausgewählte Schnitte gehen von Signaling in die Produktisierung über."],
+      ["04", "Du bekommst frühen Zugang", "Angemeldete Tester können in die nächste Validierungsrunde einsteigen."],
+    ],
+    ossKicker: "06 / OPEN SOURCE",
+    ossH2: "Selbst hosten. Forken. Oder die offizielle resonArch-Instanz nutzen.",
+    ossSub: "NEXT selbst ist unter Apache-2.0 lizenziert. Der Name resonArch, Logos und offizielle Community-Daten werden nicht durch die Quellcode-Lizenz gewährt.",
+    ossBtn: "Quellcode ansehen ↗",
+    footerTagline: "Echte Tools. Agent-betrieben. Menschlich kontrolliert.",
+    modalKicker: "DEIN SIGNAL ABGEBEN",
+    modalH2: (n: number) => `Dein Top ${n}`,
+    interestLabel: "Was macht das interessant für dich?",
+    interestOptions: [
+      ["use-myself", "Ich würde es selbst nutzen"],
+      ["team", "Mein Team/Unternehmen könnte es nutzen"],
+      ["integrate-api", "Ich würde die API integrieren"],
+      ["curious", "Ich bin hauptsächlich neugierig"],
+    ],
+    useCaseLabel: "Wofür würdest du es nutzen?",
+    useCasePlaceholder: "Ein konkreter Anwendungsfall ist wertvoller als allgemeines Lob.",
+    betaLabel: "Ich würde gerne eine frühe Version testen.",
+    payLabel: "Ich würde dafür bezahlen, wenn es funktioniert.",
+    privacyNote: "Kein Account oder E-Mail erforderlich. Dein Stimmzettel wird unter einer anonymen Besucher-ID gespeichert.",
+    submitBtn: (s: boolean) => s ? "Wird eingereicht…" : "Stimme abgeben & Community-Signal freischalten →",
+    dockLabel: "DEIN SIGNAL",
+    dockEmpty: "Wähle bis zu drei Experimente",
+    dockReview: "Überprüfen →",
+    eligibleVoters: "berechtigte Abstimmende",
+    betaVoters: "Beta-interessierte Abstimmende",
+    payVoters: "zahlungsbereite Abstimmende",
+    topPick: "",
+    heroSocialProof: (n: number) => n > 3 ? `Schließ dich ${n} anderen an, die bereits abgestimmt haben.` : "",
+  },
+};
 
 export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }) {
   const [catalog, setCatalog] = useState(initialCatalog);
   const [audience, setAudience] = useState<Audience | null>(null);
+  const [audienceJustSet, setAudienceJustSet] = useState(false);
   const [family, setFamily] = useState<string>("All");
   const [picks, setPicks] = useState<string[]>([]);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -33,45 +206,50 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
   const [community, setCommunity] = useState<CommunitySignal | null>(null);
   const [voteError, setVoteError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [lang, setLang] = useState<Lang>("de");
+
+  const t = T[lang];
 
   useEffect(() => {
     const storedAudience = window.localStorage.getItem("next:audience") as Audience | null;
     const storedPicks = window.localStorage.getItem("next:picks");
+    const storedLang = window.localStorage.getItem("next:lang") as Lang | null;
     if (storedAudience) setAudience(storedAudience);
+    if (storedLang) setLang(storedLang);
     if (storedPicks) {
       try {
         const parsed = JSON.parse(storedPicks);
         if (Array.isArray(parsed)) setPicks(parsed.slice(0, 3));
-      } catch {
-        // Ignore malformed local UI state.
-      }
+      } catch { /* ignore */ }
     }
-
     fetch("/api/catalog")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload) => {
-        if (payload?.products) setCatalog(payload.products);
-      })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => { if (p?.products) setCatalog(p.products); })
       .catch(() => undefined);
-
     fetch("/api/community-signal")
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload) => {
-        if (payload?.products) setCommunity(payload);
-      })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((p) => { if (p?.products) setCommunity(p); })
       .catch(() => undefined);
   }, []);
 
   useEffect(() => {
     if (audience) window.localStorage.setItem("next:audience", audience);
   }, [audience]);
-
   useEffect(() => {
     window.localStorage.setItem("next:picks", JSON.stringify(picks));
   }, [picks]);
+  useEffect(() => {
+    window.localStorage.setItem("next:lang", lang);
+  }, [lang]);
+
+  function selectAudience(id: Audience) {
+    setAudience(id);
+    setAudienceJustSet(true);
+    setTimeout(() => setAudienceJustSet(false), 2200);
+  }
 
   const products = useMemo(() => {
-    const filtered = family === "All" ? catalog : catalog.filter((product) => product.family === family);
+    const filtered = family === "All" ? catalog : catalog.filter((p) => p.family === family);
     if (!audience) return filtered;
     return [...filtered].sort((a, b) => {
       const aScore = a.audiences.includes(audience) ? 1 : 0;
@@ -81,19 +259,19 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
   }, [catalog, family, audience]);
 
   const pickedProducts = picks
-    .map((id) => catalog.find((product) => product.id === id))
+    .map((id) => catalog.find((p) => p.id === id))
     .filter(Boolean) as Product[];
 
   function togglePick(id: string) {
     if (community) return;
     setVoteError(null);
-    setPicks((current) => {
-      if (current.includes(id)) return current.filter((item) => item !== id);
-      if (current.length >= 3) {
-        setVoteError("Your Top 3 is full. Remove one pick before adding another.");
-        return current;
+    setPicks((cur) => {
+      if (cur.includes(id)) return cur.filter((i) => i !== id);
+      if (cur.length >= 3) {
+        setVoteError(lang === "de" ? "Dein Top 3 ist voll. Entferne eine Auswahl, bevor du eine neue hinzufügst." : "Your Top 3 is full. Remove one pick before adding another.");
+        return cur;
       }
-      return [...current, id];
+      return [...cur, id];
     });
   }
 
@@ -101,86 +279,78 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
     if (!audience || picks.length < 1 || picks.length > 3) return;
     setSubmitting(true);
     setVoteError(null);
-
     try {
       const response = await fetch("/api/vote", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          serviceIds: picks,
-          audience,
-          interestType,
-          useCase,
-          betaInterest,
-          paymentInterest
-        })
+        body: JSON.stringify({ serviceIds: picks, audience, interestType, useCase, betaInterest, paymentInterest }),
       });
-
       const payload = await response.json().catch(() => null);
-      if (!response.ok) {
-        throw new Error(payload?.error || "The ballot could not be accepted.");
-      }
-
+      if (!response.ok) throw new Error(payload?.error || (lang === "de" ? "Der Stimmzettel konnte nicht angenommen werden." : "The ballot could not be accepted."));
       const result = await fetch("/api/community-signal");
-      if (!result.ok) throw new Error("Vote accepted, but Community Signal could not be loaded yet.");
+      if (!result.ok) throw new Error(lang === "de" ? "Stimme angenommen, aber Community-Signal konnte noch nicht geladen werden." : "Vote accepted, but Community Signal could not be loaded yet.");
       setCommunity(await result.json());
       setReviewOpen(false);
       window.localStorage.removeItem("next:picks");
     } catch (error) {
-      setVoteError(error instanceof Error ? error.message : "The ballot could not be accepted.");
+      setVoteError(error instanceof Error ? error.message : (lang === "de" ? "Der Stimmzettel konnte nicht angenommen werden." : "The ballot could not be accepted."));
     } finally {
       setSubmitting(false);
     }
   }
 
+  const totalVoters = community?.eligibleVoters ?? 0;
+  const socialProofText = t.heroSocialProof(totalVoters);
+
   return (
     <main>
+      {/* Skip link for keyboard/screen reader users */}
+      <a className="skip-link" href="#lab">{lang === "de" ? "Zum Inhalt springen" : "Skip to content"}</a>
+
       <nav className="topbar page-width">
-        <a className="brand" href="#top">
-          resonArch<span>.NEXT</span>
-        </a>
+        <a className="brand" href="#top">resonArch<span>.NEXT</span></a>
         <div className="topnav-links">
-          <a href="#lab">Explore</a>
-          <a href="#signal">Community Signal</a>
-          <a href="#roadmap">Roadmap</a>
-          <a
-            href="https://github.com/Hazy142/resonArch.NEXT"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="nav-github"
+          <a href="#lab">{t.navExplore}</a>
+          <a href="#signal">{t.navSignal}</a>
+          <a href="#roadmap">{t.navRoadmap}</a>
+          <a href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer" className="nav-github">{t.navGithub}</a>
+          <Link href="/admin">{t.navAdmin}</Link>
+          {/* Language toggle */}
+          <button
+            className="lang-toggle"
+            onClick={() => setLang(lang === "de" ? "en" : "de")}
+            aria-label="Switch language"
           >
-            GitHub ↗
-          </a>
-          <Link href="/admin">Admin</Link>
+            {lang === "de" ? "EN" : "DE"}
+          </button>
         </div>
       </nav>
 
       <section className="hero page-width" id="top">
         <div className="hero-grid">
           <div className="hero-copy">
-            <div className="eyebrow">PUBLIC PRODUCT LAB / OPEN SOURCE</div>
-            <h1>AI that works in the <span>real world.</span></h1>
-            <p className="hero-lede">
-              We build infrastructure that lets AI work with real software, engineering systems and compute —
-              while humans stay in control. Every action leaves a receipt.
-            </p>
+            <div className="eyebrow">{t.eyebrowHero}</div>
+            <h1>{t.heroH1a} <span>{t.heroH1b}</span></h1>
+            <p className="hero-lede">{t.heroLede}</p>
             <div className="hero-badges">
-              <span>Open Source</span>
-              <span>Evidence First</span>
-              <span>Real Systems</span>
-              <span>Built for People</span>
+              <span>{t.badge1}</span>
+              <span>{t.badge2}</span>
+              <span>{t.badge3}</span>
+              <span>{t.badge4}</span>
             </div>
+            {/* Social proof counter */}
+            {socialProofText ? (
+              <div className="social-proof-strip">
+                <span className="social-proof-dot" aria-hidden="true">●</span>
+                {socialProofText}
+              </div>
+            ) : null}
             <div className="founder-strip">
-              <span className="founder-label">Built by</span>
-              <a
-                href="https://www.linkedin.com/in/elsen-andre"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="founder-link"
-              >
+              <span className="founder-label">{t.founderLabel}</span>
+              <a href="https://www.linkedin.com/in/elsen-andre" target="_blank" rel="noopener noreferrer" className="founder-link">
                 André Elsen · Founder & Systems Architect
               </a>
-              <span className="founder-location">· Büren, Germany</span>
+              <span className="founder-location">{t.founderLocation}</span>
             </div>
           </div>
           <div className="signal-orbit" aria-hidden="true">
@@ -193,15 +363,21 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
           </div>
         </div>
 
+        {/* Audience selector with commitment & decoy */}
         <div className="audience-block">
-          <div className="section-kicker"><span>01</span>Start with your context</div>
+          <div className="section-kicker"><span>01</span>{t.audienceKicker}</div>
+          {audienceJustSet ? (
+            <div className="audience-confirm" role="status" aria-live="polite">{t.audienceConfirm}</div>
+          ) : null}
           <div className="audience-grid">
-            {audienceOptions.map((option) => (
+            {t.audiences.map((option) => (
               <button
-                className={"audience-card " + (audience === option.id ? "selected" : "")}
+                className={["audience-card", audience === option.id ? "selected" : "", option.tag ? "decoy" : ""].filter(Boolean).join(" ")}
                 key={option.id}
-                onClick={() => setAudience(option.id)}
+                onClick={() => selectAudience(option.id)}
+                aria-pressed={audience === option.id}
               >
+                {option.tag ? <span className="decoy-tag">{option.tag}</span> : null}
                 <strong>{option.label}</strong>
                 <span>{option.detail}</span>
               </button>
@@ -213,11 +389,11 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
       <section className="system-strip">
         <div className="page-width system-grid">
           <div>
-            <div className="eyebrow">WHAT IS resonArch?</div>
-            <h2>One system. Multiple real-world surfaces.</h2>
+            <div className="eyebrow">{t.whatIsKicker}</div>
+            <h2>{t.whatIsH2}</h2>
           </div>
           <div className="system-flow">
-            <span>AI</span><b>↔</b><span>Software</span><b>↔</b><span>Engineering</span><b>↔</b><span>Evidence</span><b>↔</b><span>Compute</span>
+            <span>AI</span><b>↔</b><span>{lang === "de" ? "Software" : "Software"}</span><b>↔</b><span>{lang === "de" ? "Ingenieurwesen" : "Engineering"}</span><b>↔</b><span>{lang === "de" ? "Nachweise" : "Evidence"}</span><b>↔</b><span>Compute</span>
           </div>
         </div>
       </section>
@@ -225,12 +401,12 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
       <section className="lab-section page-width" id="lab">
         <div className="section-heading">
           <div>
-            <div className="eyebrow">02 / EXPLORE THE LAB</div>
-            <h2>Pick what excites you.</h2>
-            <p>Families help you navigate. Concrete experiments are the actual vote targets.</p>
+            <div className="eyebrow">{t.labKicker}</div>
+            <h2>{t.labH2}</h2>
+            <p>{t.labSub}</p>
           </div>
           <div className="counter-lock">
-            {community ? "Community signal unlocked" : "Vote counts hidden until you vote"}
+            {community ? t.counterUnlocked : t.counterLocked}
           </div>
         </div>
 
@@ -245,9 +421,9 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
         <div className="product-grid">
           {products.map((product, index) => {
             const selected = picks.includes(product.id);
-            const signal = community?.products.find((entry) => entry.serviceId === product.id);
+            const signal = community?.products.find((e) => e.serviceId === product.id);
             return (
-              <article className={"product-card " + (selected ? "picked" : "")} key={product.id}>
+              <article className={["product-card", selected ? "picked" : ""].filter(Boolean).join(" ")} key={product.id}>
                 <div className="product-card-top">
                   <span className="product-index">{String(index + 1).padStart(2, "0")}</span>
                   <span className="product-family">{product.family}</span>
@@ -256,34 +432,30 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
                 <h3>{product.title}</h3>
                 <p className="product-promise">{product.promise}</p>
                 <p className="product-summary">{product.summary}</p>
-
                 <div className="evidence-mini">
-                  <span>PROVEN BY</span>
-                  <div>
-                    {product.evidence.map((item) => <small key={item}>{item}</small>)}
-                  </div>
+                  <span>{t.provenBy}</span>
+                  <div>{product.evidence.map((item) => <small key={item}>{item}</small>)}</div>
                 </div>
-
                 {signal ? (
                   <div className="signal-inline">
                     <strong>{signal.votes}</strong>
-                    <span>eligible community votes</span>
+                    <span>{t.communityVotes}</span>
                   </div>
                 ) : null}
-
                 <div className="product-card-footer">
                   <div>
-                    <small>PRODUCT STATE</small>
+                    <small>{t.productState}</small>
                     <strong>{product.state}</strong>
                   </div>
                   <div className="card-actions">
-                    <Link href={"/products/" + product.slug}>Explore</Link>
+                    <Link href={"/products/" + product.slug}>{t.explore}</Link>
                     <button
                       className={selected ? "pick-button picked" : "pick-button"}
                       onClick={() => togglePick(product.id)}
                       disabled={Boolean(community)}
+                      aria-pressed={selected}
                     >
-                      {selected ? "✓ PICKED" : "↑ PICK"}
+                      {selected ? t.picked : t.pick}
                     </button>
                   </div>
                 </div>
@@ -296,17 +468,17 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
       <section className="maturity-section page-width">
         <div className="section-heading compact">
           <div>
-            <div className="eyebrow">03 / HOW FAR IS THIS REALLY?</div>
-            <h2>Technical maturity ≠ product maturity.</h2>
+            <div className="eyebrow">{t.maturityKicker}</div>
+            <h2>{t.maturityH2}</h2>
           </div>
         </div>
         <div className="maturity-grid">
-          {maturityCopy.map(([label, text]) => (
+          {t.maturityItems.map(([label, text]) => (
             <div className="maturity-card" key={label}><strong>{label}</strong><p>{text}</p></div>
           ))}
         </div>
         <div className="roadmap-line">
-          {["SIGNALING", "VALIDATING", "BUILDING", "BETA", "AVAILABLE"].map((state, index) => (
+          {t.roadmapStates.map((state, index) => (
             <div key={state}><span>{index + 1}</span><strong>{state}</strong></div>
           ))}
         </div>
@@ -316,30 +488,34 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
         <div className="page-width">
           <div className="section-heading">
             <div>
-              <div className="eyebrow">04 / COMMUNITY SIGNAL</div>
-              <h2>{community ? "Here's what the community wants next." : "Your signal comes first."}</h2>
-              <p>
-                {community
-                  ? "These counts use eligible ballots only. Declared intent is shown as intent — not customers or revenue."
-                  : "Community rankings remain hidden until you cast a valid Top-3 ballot, reducing herd effects."}
-              </p>
+              <div className="eyebrow">{t.signalKicker}</div>
+              <h2>{community ? t.signalH2unlocked : t.signalH2locked}</h2>
+              <p>{community ? t.signalSubUnlocked : t.signalSubLocked}</p>
             </div>
           </div>
 
           {community ? (
             <>
-              <CommunityResults community={community} catalog={catalog} />
+              <CommunityResults community={community} catalog={catalog} t={t} />
               <OptInPanel />
             </>
           ) : (
             <div className="locked-signal">
-              <div className="lock-mark">⌁</div>
+              <div className="lock-mark" aria-hidden="true">⌁</div>
               <div>
-                <strong>COMMUNITY SIGNAL LOCKED</strong>
-                <p>Select up to three experiments and cast your ballot to unlock the aggregate.</p>
+                <strong>{t.lockTitle}</strong>
+                <p>{t.lockBody}</p>
+                {/* Loss aversion: show how many voters went before */}
+                <p className="loss-aversion-note">{t.lockBodyLoss(totalVoters)}</p>
+                {/* Scarcity signal */}
+                <p className="scarcity-note">⚠ {t.scarcityNote}</p>
               </div>
-              <button className="primary-button" disabled={!audience || picks.length === 0} onClick={() => setReviewOpen(true)}>
-                Review my Top {picks.length || 3} →
+              <button
+                className="primary-button"
+                disabled={!audience || picks.length === 0}
+                onClick={() => setReviewOpen(true)}
+              >
+                {t.lockCTA(picks.length)}
               </button>
             </div>
           )}
@@ -349,17 +525,12 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
       <section className="roadmap-section page-width" id="roadmap">
         <div className="section-heading">
           <div>
-            <div className="eyebrow">05 / FROM IDEAS TO REAL TOOLS</div>
-            <h2>You are helping decide what resonArch ships next.</h2>
+            <div className="eyebrow">{t.roadmapKicker}</div>
+            <h2>{t.roadmapH2}</h2>
           </div>
         </div>
         <div className="process-grid">
-          {[
-            ["01", "Community votes", "People choose concrete experiments, not vague themes."],
-            ["02", "We validate", "Signal quality, use cases, feasibility and cost are reviewed."],
-            ["03", "We build", "Selected cuts move from signaling into productization."],
-            ["04", "You get early access", "Opted-in testers can join the next validation loop."]
-          ].map(([number, title, copy]) => (
+          {t.roadmapSteps.map(([number, title, copy]) => (
             <article key={number}><span>{number}</span><h3>{title}</h3><p>{copy}</p></article>
           ))}
         </div>
@@ -368,20 +539,17 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
       <section className="open-source-section">
         <div className="page-width open-source-grid">
           <div>
-            <div className="eyebrow">06 / OPEN SOURCE</div>
-            <h2>Self-host it. Fork it. Or use the official resonArch instance.</h2>
-            <p>
-              NEXT itself is Apache-2.0 licensed. The resonArch name, logos and official community data are not
-              granted by the source-code license.
-            </p>
+            <div className="eyebrow">{t.ossKicker}</div>
+            <h2>{t.ossH2}</h2>
+            <p>{t.ossSub}</p>
           </div>
-          <a className="primary-button" href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer">View source ↗</a>
+          <a className="primary-button" href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer">{t.ossBtn}</a>
         </div>
       </section>
 
       <footer className="footer page-width">
         <div className="brand">resonArch<span>.NEXT</span></div>
-        <p>Real tools. Agent-operated. Human-controlled.</p>
+        <p>{t.footerTagline}</p>
         <div className="footer-links">
           <a href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
           <a href="https://www.linkedin.com/in/elsen-andre" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
@@ -389,96 +557,90 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
         <span>Apache-2.0</span>
       </footer>
 
+      {/* Selection dock */}
       {!community ? (
         <div className="selection-dock">
           <div>
             <span className="dock-count">{picks.length}/3</span>
             <div>
-              <strong>YOUR SIGNAL</strong>
-              <small>{picks.length ? pickedProducts.map((item) => item.title).join(" · ") : "Pick up to three experiments"}</small>
+              <strong>{t.dockLabel}</strong>
+              <small>{picks.length ? pickedProducts.map((p) => p.title).join(" · ") : t.dockEmpty}</small>
             </div>
           </div>
           <button disabled={!audience || picks.length === 0} onClick={() => setReviewOpen(true)} className="dock-button">
-            Review →
+            {t.dockReview}
           </button>
         </div>
       ) : null}
 
+      {/* Vote modal */}
       {reviewOpen ? (
         <div className="modal-backdrop" onMouseDown={() => setReviewOpen(false)}>
-          <div className="vote-modal" onMouseDown={(event) => event.stopPropagation()}>
+          <div className="vote-modal" onMouseDown={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t.modalKicker}>
             <button className="modal-close" onClick={() => setReviewOpen(false)} aria-label="Close">×</button>
-            <div className="eyebrow">CAST YOUR SIGNAL</div>
-            <h2>Your Top {picks.length}</h2>
+            <div className="eyebrow">{t.modalKicker}</div>
+            <h2>{t.modalH2(picks.length)}</h2>
             <div className="review-picks">
-              {pickedProducts.map((product) => (
-                <div key={product.id}><span>{product.family}</span><strong>{product.title}</strong></div>
+              {pickedProducts.map((p) => (
+                <div key={p.id}><span>{p.family}</span><strong>{p.title}</strong></div>
               ))}
             </div>
 
             <label>
-              <span>What makes this interesting?</span>
-              <select value={interestType} onChange={(event) => setInterestType(event.target.value)}>
-                <option value="use-myself">I'd use it myself</option>
-                <option value="team">My team/company could use it</option>
-                <option value="integrate-api">I'd integrate the API</option>
-                <option value="curious">I'm mostly curious</option>
+              <span>{t.interestLabel}</span>
+              <select value={interestType} onChange={(e) => setInterestType(e.target.value)}>
+                {t.interestOptions.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
               </select>
             </label>
 
             <label>
-              <span>What would you use it for? <small>optional</small></span>
+              <span>{t.useCaseLabel} <small>optional</small></span>
               <textarea
                 maxLength={500}
                 value={useCase}
-                onChange={(event) => setUseCase(event.target.value)}
-                placeholder="A concrete use case is more valuable than generic praise."
+                onChange={(e) => setUseCase(e.target.value)}
+                placeholder={t.useCasePlaceholder}
               />
               <small className="char-count">{useCase.length}/500</small>
             </label>
 
             <label className="check-row">
-              <input type="checkbox" checked={betaInterest} onChange={(event) => setBetaInterest(event.target.checked)} />
-              <span>I'd like to test an early version.</span>
+              <input type="checkbox" checked={betaInterest} onChange={(e) => setBetaInterest(e.target.checked)} />
+              <span>{t.betaLabel}</span>
             </label>
             <label className="check-row">
-              <input type="checkbox" checked={paymentInterest} onChange={(event) => setPaymentInterest(event.target.checked)} />
-              <span>I'd consider paying for this if it works.</span>
+              <input type="checkbox" checked={paymentInterest} onChange={(e) => setPaymentInterest(e.target.checked)} />
+              <span>{t.payLabel}</span>
             </label>
 
-            <p className="privacy-note">
-              No account or email is required. Your ballot is stored under an anonymous visitor identifier.
-            </p>
-
+            <p className="privacy-note">{t.privacyNote}</p>
             {voteError ? <div className="error-box">{voteError}</div> : null}
 
             <button className="primary-button wide" disabled={!audience || picks.length === 0 || submitting} onClick={castVote}>
-              {submitting ? "Submitting…" : "Cast vote & unlock Community Signal →"}
+              {t.submitBtn(submitting)}
             </button>
           </div>
         </div>
       ) : null}
 
-      {voteError && !reviewOpen ? <div className="toast">{voteError}</div> : null}
+      {voteError && !reviewOpen ? <div className="toast" role="alert">{voteError}</div> : null}
     </main>
   );
 }
 
-function CommunityResults({ community, catalog }: { community: CommunitySignal; catalog: Product[] }) {
+function CommunityResults({ community, catalog, t }: { community: CommunitySignal; catalog: Product[]; t: typeof T["en"] }) {
   const rows = [...community.products].sort((a, b) => b.votes - a.votes);
-  const maxVotes = Math.max(1, ...rows.map((row) => row.votes));
-
+  const maxVotes = Math.max(1, ...rows.map((r) => r.votes));
   return (
     <div className="community-results">
       <div className="results-summary">
-        <div><strong>{community.eligibleVoters}</strong><span>eligible voters</span></div>
-        <div><strong>{community.betaInterestedVoters}</strong><span>beta-interested voters</span></div>
-        <div><strong>{community.paymentInterestedVoters}</strong><span>payment-intent voters</span></div>
+        <div><strong>{community.eligibleVoters}</strong><span>{t.eligibleVoters}</span></div>
+        <div><strong>{community.betaInterestedVoters}</strong><span>{t.betaVoters}</span></div>
+        <div><strong>{community.paymentInterestedVoters}</strong><span>{t.payVoters}</span></div>
       </div>
-
       <div className="ranking-list">
         {rows.map((row, index) => {
-          const product = catalog.find((item) => item.id === row.serviceId);
+          const product = catalog.find((p) => p.id === row.serviceId);
           if (!product) return null;
           return (
             <div className="ranking-row" key={row.serviceId}>
