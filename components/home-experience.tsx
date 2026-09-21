@@ -143,6 +143,14 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
           <a href="#lab">Explore</a>
           <a href="#signal">Community Signal</a>
           <a href="#roadmap">Roadmap</a>
+          <a
+            href="https://github.com/Hazy142/resonArch.NEXT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nav-github"
+          >
+            GitHub ↗
+          </a>
           <Link href="/admin">Admin</Link>
         </div>
       </nav>
@@ -161,6 +169,18 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
               <span>Evidence First</span>
               <span>Real Systems</span>
               <span>Built for People</span>
+            </div>
+            <div className="founder-strip">
+              <span className="founder-label">Built by</span>
+              <a
+                href="https://www.linkedin.com/in/elsen-andre"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="founder-link"
+              >
+                André Elsen · Founder & Systems Architect
+              </a>
+              <span className="founder-location">· Büren, Germany</span>
             </div>
           </div>
           <div className="signal-orbit" aria-hidden="true">
@@ -355,13 +375,17 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
               granted by the source-code license.
             </p>
           </div>
-          <a className="primary-button" href="https://github.com/Hazy142/resonArch.NEXT">View source ↗</a>
+          <a className="primary-button" href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer">View source ↗</a>
         </div>
       </section>
 
       <footer className="footer page-width">
         <div className="brand">resonArch<span>.NEXT</span></div>
         <p>Real tools. Agent-operated. Human-controlled.</p>
+        <div className="footer-links">
+          <a href="https://github.com/Hazy142/resonArch.NEXT" target="_blank" rel="noopener noreferrer">GitHub ↗</a>
+          <a href="https://www.linkedin.com/in/elsen-andre" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a>
+        </div>
         <span>Apache-2.0</span>
       </footer>
 
