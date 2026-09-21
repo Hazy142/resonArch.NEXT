@@ -6,45 +6,140 @@ Open-source product discovery, voting and community-signal platform for resonArc
 
 **Real tools. Agent-operated. Human-controlled.**
 
-resonArch NEXT is designed to make the difference between **proven implementation**, **prototype/research**, and **future product vision** visible — while letting the community signal which concrete services should be productized next.
+resonArch NEXT makes the difference between **proven implementation**, **prototype/research**, and **future product vision** visible — while letting the community signal which concrete services should be productized next.
 
 ## Current phase
 
-Design specification approved and recorded. Implementation has not started yet.
+**v1 implementation complete on the implementation branch and gated by CI.**
 
-## Core decisions
+Implemented surfaces:
 
-- Apache-2.0 source license
-- official instance target: next.resonarch.app
-- Next.js / React
-- PostgreSQL on resonArch-controlled IONOS infrastructure
-- anonymous voting without accounts
-- up to 3 product picks per visitor
-- community results hidden until a valid ballot is submitted
-- optional beta / payment-intent feedback
-- optional email opt-in stored separately from votes
-- transparent integrity filtering instead of invasive fingerprinting
-- technical maturity separated from product/commercial state
-- 6 product families / 20 initial vote targets
-- single-admin analytics dashboard for v1
+- public Next.js/React Product Lab
+- audience selector
+- 6 product families / 20 bounded vote targets
+- technical maturity and commercial state shown separately
+- evidence badges with explicit limitations
+- persistent Top-3 picker
+- anonymous ballot flow without accounts
+- Community Signal locked until a valid ballot is committed
+- PostgreSQL / Drizzle persistence
+- rotating HMAC-based abuse key and integrity states
+- optional qualitative feedback, beta interest and payment intent
+- optional email opt-in stored separately from ballots
+- protected single-admin analytics dashboard
+- transparent Decision Score
+- product-status controls
+- manual integrity review with auditable restore/exclude decisions
+- CSV / JSON exports
+- Docker Compose + nginx deployment
+- database migration, tests, typecheck and production-build gates
 
-## Documentation
+## Quick start
 
-- [Product Vision](docs/PRODUCT-VISION.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Voting and Integrity](docs/VOTING-AND-INTEGRITY.md)
-- [Content Model](docs/CONTENT-MODEL.md)
-- [Admin and Analytics](docs/ADMIN-ANALYTICS.md)
-- [Privacy Design Notes](docs/PRIVACY.md)
-- [Approved Design Specification](docs/superpowers/specs/2026-09-21-resonarch-next-design.md)
+### Docker Compose
 
-## Visual reference
+~~~bash
+cp .env.example .env
+# Set strong values for ADMIN_PASSWORD, ADMIN_SESSION_SECRET,
+# ABUSE_SECRET and POSTGRES_PASSWORD.
 
-The repository root contains the approved screenshot-style design reference:
+docker compose up --build
+~~~
 
-**Codex-Bild 21. Sept. 2026, 21_29_53.png**
+Default local endpoint:
 
-Implementation must preserve one important correction to that mockup: **vote counts remain hidden until the visitor has submitted a valid ballot.**
+~~~text
+http://localhost:8080
+~~~
+
+Admin:
+
+~~~text
+http://localhost:8080/admin
+~~~
+
+Health:
+
+~~~text
+http://localhost:8080/api/health
+~~~
+
+### Local Node development
+
+Requirements:
+
+- Node.js 22
+- PostgreSQL 16 or compatible
+
+~~~bash
+npm install
+cp .env.example .env.local
+npm run db:migrate
+npm run dev
+~~~
+
+## Build gates
+
+~~~bash
+npm run db:migrate
+npm run typecheck
+npm test
+npm run build
+~~~
+
+GitHub Actions runs the same migration/typecheck/test/build path against PostgreSQL.
+
+## Runtime architecture
+
+~~~text
+Browser
+  ↓
+Next.js / React
+  ↓
+server-side API + domain rules
+  ↓
+Drizzle ORM
+  ↓
+PostgreSQL
+~~~
+
+Self-hosted deployment:
+
+~~~text
+Internet
+  ↓
+nginx
+  ↓
+NEXT app
+  ↓
+PostgreSQL
+~~~
+
+## Voting contract
+
+- no account required
+- email not required
+- one anonymous ballot per browser identity
+- 1–3 distinct services per ballot
+- results remain hidden before a valid vote
+- raw suspicious ballots are retained
+- public aggregates use eligible ballots
+- operator integrity decisions are auditable
+
+The system intentionally does **not** use durable invasive device fingerprinting.
+
+## Product catalogue
+
+NEXT v1 contains six families:
+
+1. Workspaces & Bridges
+2. Engineering & Knowledge
+3. Proof & Trust
+4. CAD & Industry
+5. Creator & Media
+6. Compute & Runtime
+
+The source-controlled catalogue contains 20 concrete vote targets. Runtime admin overrides can change technical maturity and product/commercial state without rewriting the source catalogue.
 
 ## Status vocabulary
 
@@ -68,6 +163,44 @@ AVAILABLE
 ~~~
 
 These are intentionally separate.
+
+## Evidence contract
+
+Each product page explicitly separates:
+
+~~~text
+WHAT IT DOES
+WHY IT EXISTS
+WHAT ALREADY WORKS
+WHAT IS STILL MISSING
+PROVEN BY
+~~~
+
+NEXT must not turn product vision into an implementation claim.
+
+## Email note
+
+The v1 opt-in endpoint stores explicit consent separately from anonymous ballots and reports that verification is required.
+
+**An outbound email provider / double-opt-in delivery transport is intentionally not configured yet.** Add that before using the official instance for production marketing email.
+
+## Documentation
+
+- [Product Vision](docs/PRODUCT-VISION.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Voting and Integrity](docs/VOTING-AND-INTEGRITY.md)
+- [Content Model](docs/CONTENT-MODEL.md)
+- [Admin and Analytics](docs/ADMIN-ANALYTICS.md)
+- [Privacy Design Notes](docs/PRIVACY.md)
+- [Approved Design Specification](docs/superpowers/specs/2026-09-21-resonarch-next-design.md)
+
+## Visual reference
+
+The repository root contains the approved screenshot-style design reference:
+
+**Codex-Bild 21. Sept. 2026, 21_29_53.png**
+
+The implementation preserves the required correction to that mockup: **vote counts remain hidden until the visitor submits a valid ballot.**
 
 ## License and branding
 
