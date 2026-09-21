@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getDb } from "@/db";
+import { getCatalogWithOverrides } from "@/db/catalog-sync";
 import { catalogBySlug } from "@/lib/catalog";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({
   params
@@ -8,7 +12,15 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const product = catalogBySlug.get(slug);
+  let product = catalogBySlug.get(slug);
+
+  try {
+    const liveCatalog = await getCatalogWithOverrides(getDb());
+    product = liveCatalog.find((item) => item.slug === slug) || product;
+  } catch {
+    // The source-controlled catalogue remains a deliberate offline fallback.
+  }
+
   if (!product) notFound();
 
   return (
