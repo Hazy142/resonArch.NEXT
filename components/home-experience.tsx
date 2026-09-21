@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { OptInPanel } from "@/components/opt-in-panel";
 import { useEffect, useMemo, useState } from "react";
 import { families } from "@/lib/catalog";
 import type { Audience, CommunitySignal, Product } from "@/lib/types";
@@ -306,7 +307,10 @@ export function HomeExperience({ initialCatalog }: { initialCatalog: Product[] }
           </div>
 
           {community ? (
-            <CommunityResults community={community} catalog={catalog} />
+            <>
+              <CommunityResults community={community} catalog={catalog} />
+              <OptInPanel />
+            </>
           ) : (
             <div className="locked-signal">
               <div className="lock-mark">⌁</div>
