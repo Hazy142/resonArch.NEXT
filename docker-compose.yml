@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: resonarch_next
+      POSTGRES_USER: resonarch
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - next_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resonarch -d resonarch_next"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://resonarch:${POSTGRES_PASSWORD:-change-me}@db:5432/resonarch_next
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD}
+      ADMIN_SESSION_SECRET: ${ADMIN_SESSION_SECRET:?set ADMIN_SESSION_SECRET}
+      ABUSE_SECRET: ${ABUSE_SECRET:?set ABUSE_SECRET}
+      ABUSE_BALLOT_LIMIT_PER_HOUR: ${ABUSE_BALLOT_LIMIT_PER_HOUR:-10}
+      NEXT_TELEMETRY_DISABLED: "1"
+    expose:
+      - "3000"
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    depends_on:
+      - app
+    ports:
+      - "${NEXT_HTTP_PORT:-8080}:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  next_postgres:

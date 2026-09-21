@@ -1,0 +1,52 @@
+name: NEXT build gates
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: resonarch_next
+          POSTGRES_USER: resonarch
+          POSTGRES_PASSWORD: resonarch
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U resonarch -d resonarch_next"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+
+    env:
+      DATABASE_URL: postgresql://resonarch:resonarch@127.0.0.1:5432/resonarch_next
+      ADMIN_PASSWORD: ci-admin-password
+      ADMIN_SESSION_SECRET: ci-admin-session-secret
+      ABUSE_SECRET: ci-abuse-secret
+      NEXT_TELEMETRY_DISABLED: 1
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install
+        run: npm install
+
+      - name: Apply database migration
+        run: npm run db:migrate
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
