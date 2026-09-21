@@ -28,8 +28,18 @@ type Overview = {
   products: ProductRow[];
 };
 
+type IntegrityRow = {
+  ballotId: string;
+  audience: string;
+  state: string;
+  createdAt: string;
+  eventType: string | null;
+  detail: Record<string, unknown> | null;
+};
+
 export function AdminDashboard() {
   const [overview, setOverview] = useState<Overview | null>(null);
+  const [integrity, setIntegrity] = useState<IntegrityRow[]>([]);
   const [unauthorized, setUnauthorized] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +57,12 @@ export function AdminDashboard() {
     }
     setUnauthorized(false);
     setOverview(await response.json());
+
+    const integrityResponse = await fetch("/api/admin/integrity", { cache: "no-store" });
+    if (integrityResponse.ok) {
+      const payload = await integrityResponse.json();
+      setIntegrity(payload.suspicious || []);
+    }
   }
 
   useEffect(() => {
@@ -82,9 +98,31 @@ export function AdminDashboard() {
     await load();
   }
 
+  async function decideIntegrity(ballotId: string, decision: "restore" | "exclude") {
+    const reason = window.prompt(
+      decision === "restore"
+        ? "Why should this ballot be restored?"
+        : "Why should this ballot remain excluded?"
+    );
+    if (!reason) return;
+
+    const response = await fetch("/api/admin/integrity", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ballotId, decision, reason })
+    });
+
+    if (!response.ok) {
+      setError("Integrity decision could not be recorded.");
+      return;
+    }
+    await load();
+  }
+
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
     setOverview(null);
+    setIntegrity([]);
     setUnauthorized(true);
   }
 
@@ -184,6 +222,36 @@ export function AdminDashboard() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="integrity-section">
+        <div className="admin-table-heading">
+          <div>
+            <div className="eyebrow">INTEGRITY REVIEW</div>
+            <h2>Suspicious or excluded ballots</h2>
+          </div>
+          <p>Raw evidence is retained. Operator decisions are recorded instead of silently deleting ballots.</p>
+        </div>
+        {integrity.length ? (
+          <div className="integrity-list">
+            {integrity.map((row) => (
+              <div className="integrity-row" key={row.ballotId}>
+                <div>
+                  <strong>{row.state}</strong>
+                  <small>{row.audience} · {new Date(row.createdAt).toLocaleString()}</small>
+                  <small>{row.eventType || "manual decision state"}</small>
+                </div>
+                <code>{row.ballotId.slice(0, 12)}…</code>
+                <div className="integrity-actions">
+                  <button onClick={() => decideIntegrity(row.ballotId, "restore")}>Restore</button>
+                  <button onClick={() => decideIntegrity(row.ballotId, "exclude")}>Keep excluded</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="integrity-empty">No suspicious or excluded ballots are waiting for review.</p>
+        )}
       </section>
 
       <section className="admin-note">
